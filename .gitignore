@@ -26,5 +26,5 @@ config/*.env
 
 # 6. Databasebestanden
 #---------------------
-data/*.db
-!data/example.db   # uitzondering: voorbeeldbestand meenemen
+db/*.db
+!db/*example.db   # uitzondering: voorbeeldbestand meenemen
