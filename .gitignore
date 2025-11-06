@@ -22,6 +22,7 @@ venv/
 #---------------------
 config/*
 !config/config_example.json
+docs/
 
 # 6. Databasebestanden
 #---------------------

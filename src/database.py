@@ -1,10 +1,26 @@
 # -*- coding: utf-8 -*-
 
 import sqlite3
+import json
 from pathlib import Path
 
-# Path naar database
-DB_PATH = Path("db/project_time_tracker.db")
+
+# ---------------------------------------
+# Haal pad naar database uit config file
+# ---------------------------------------
+ROOT = Path(__file__).resolve().parents[1]
+CONFIG = ROOT / "config" / "config.json"
+
+def get_db_path():
+    default = ROOT / "db" / "project_time_tracker.db"
+    try:
+        data = json.loads(CONFIG.read_text(encoding="utf-8"))
+        rel = data.get("database", {}).get("path")
+        return (ROOT / rel) if rel else default
+    except FileNotFoundError:
+        return default
+
+DB_PATH = get_db_path()
 
 # -------------------------
 # Maak nieuwe database aan met tabellen
@@ -29,7 +45,7 @@ def create_tables():
                    CREATE TABLE IF NOT EXISTS projects (
                    id INTEGER PRIMARY KEY AUTOINCREMENT,
                    name TEXT NOT NULL,
-                   decription TEXT,
+                   description TEXT,
                    is_active INTEGER DEFAULT 1
                    )
             """)
