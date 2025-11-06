@@ -37,34 +37,32 @@ def create_database():
 
 def create_tables():
     """Maakt de noodzakelijke tabellen aan indien die nog niet bestaan"""
-    conn = get_connection()
-    cursor = conn.cursor()
-    
-    # Tabel: projects
-    cursor.execute("""
-                   CREATE TABLE IF NOT EXISTS projects (
-                   id INTEGER PRIMARY KEY AUTOINCREMENT,
-                   name TEXT NOT NULL,
-                   description TEXT,
-                   is_active INTEGER DEFAULT 1
-                   )
-            """)
-            
-    # Tabel: sessions
-    cursor.execute("""
-                   CREATE TABLE IF NOT EXISTS sessions (
-                   id INTEGER PRIMARY KEY AUTOINCREMENT,
-                   project_id INTEGER NOT NULL,
-                   start_time TEXT NOT NULL,
-                   end_time TEXT,
-                   duration REAL,
-                   is_active INTEGER DEFAULT 1,
-                   FOREIGN KEY (project_id) REFERENCES projects (id)
-                   )
-            """)
-    
-    conn.commit()
-    conn.close()
+    with get_connection() as conn:
+        cursor = conn.cursor()
+        
+        # Tabel: projects
+        cursor.execute("""
+                       CREATE TABLE IF NOT EXISTS projects (
+                       id INTEGER PRIMARY KEY AUTOINCREMENT,
+                       name TEXT NOT NULL,
+                       description TEXT,
+                       is_active INTEGER DEFAULT 1
+                       )
+                """)
+                
+        # Tabel: sessions
+        cursor.execute("""
+                       CREATE TABLE IF NOT EXISTS sessions (
+                       id INTEGER PRIMARY KEY AUTOINCREMENT,
+                       project_id INTEGER NOT NULL,
+                       start_time TEXT NOT NULL,
+                       end_time TEXT,
+                       duration REAL,
+                       is_active INTEGER DEFAULT 1,
+                       FOREIGN KEY (project_id) REFERENCES projects (id)
+                       )
+                """)
+
     print("Tabellen gecontroleerd of aangemaakt.")
     
 # -------------------------
@@ -72,7 +70,9 @@ def create_tables():
 # -------------------------
 def get_connection():
     """Geeft een connectie met de database terug"""
-    return sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(DB_PATH)
+    # conn.execute("PRAGMA foreign_keys = ON") # <- afdwingen foreign keys
+    return conn
 
 # -------------------------
 # Data wijzigen (INSERT, UPDATE, DELETE)
@@ -80,14 +80,13 @@ def get_connection():
 
 def execute_query(query, params=None):
     """Voert een query uit die wijzigingen maakt in de database."""
-    conn = get_connection()
-    cursor = conn.cursor()
-    if params:
-        cursor.execute(query, params)
-    else:
-        cursor.execute(query)
-    conn.commit()
-    conn.close()
+    try:
+        with get_connection() as conn:
+            cursor = conn.execute(query, params or ())
+            return cursor.lastrowid
+    except sqlite3.Error as e:
+        raise RuntimeError(f"DB write failed: {e}") from e
+
     
 # -------------------------
 # Data ophalen uit database (SELECT)
@@ -95,12 +94,9 @@ def execute_query(query, params=None):
 
 def fetch_query(query, params=None):
     """Voert een SELECT query uit en geeft de resultaten terug"""
-    conn = get_connection()
-    cursor = conn.cursor()
-    if params:
-        cursor.execute(query, params)
-    else:
-        cursor.execute(query)
-    rows = cursor.fetchall()
-    conn.close()
-    return rows
+    try:
+        with get_connection() as conn:
+            cursor = conn.execute(query, params or ())
+            return cursor.fetchall()
+    except sqlite3.Error as e:
+        raise RuntimeError(f"DB read failed: {e}") from e
