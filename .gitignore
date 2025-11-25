@@ -5,8 +5,7 @@ __pycache__/
 
 # 2. Virtuele omgeving
 #---------------------
-venv/
-.env/
+.venv/
 
 # 3. IDE / Editor
 #---------------------

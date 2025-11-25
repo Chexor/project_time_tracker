@@ -1,31 +1,13 @@
-# -*- coding: utf-8 -*-
+# main.py
 
-import sys
+from models.project import Project
+#from models.worksession import Worksession
 
-from src.database import create_database, create_tables
-
-create_database()
-create_tables()
-
+project1 = Project("Test Project 1", [])
+project2 = Project("Test Project 2", [])
+project3 = Project("Test Project 3", [])
 
 
-# def show_menu():
-#     print("""
-#           \n=== Project Time Tracker ==="
-#           1. Add project
-#           2. Start session
-#           3. End session
-#           """)
-          
-# def selection_handler(selection):
-#     if selection == 1:
-        
-#     if selection == 2:
-        
-#     if selection == 3: 
-        
-# def main():
-#     while True:
-#         show_menu()
-#         selection = int(input("Kies een optie: ").strip())
-#         selection_handler(selection)
+print(project1.__str__())
+print(project2.__str__())
+
