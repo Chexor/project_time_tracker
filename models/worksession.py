@@ -9,3 +9,18 @@ class Worksession:
     description: str = ""
     id: int | None = None
     end_time: datetime = None
+
+    def is_running(self) -> bool:
+        """
+        Returns True if worksession is still running (no end_time set).
+        """
+        return self.end_time is None
+
+    def end_session(self):
+        """
+        Ends the worksession by setting the end_time to current time.
+        """
+        if self.is_running():
+            self.end_time = datetime.now()
+        else:
+            print("Deze sessie is al beëindigd.")

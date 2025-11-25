@@ -13,11 +13,11 @@ class Project:
     
     def get_active_session(self) -> ws | None:
         """
-        Returns active worksession of project.
+        Returns active work session of project.
         If no running session is found, returns None.
         """
         for session in self.worksessions:
-            return any((ws for ws in self.worksessions if ws.is_running()), None)
+            return next((ws for ws in self.worksessions if ws.is_running()), None)
     
     def show_all_sessions(self) -> list[ws]:
         """
