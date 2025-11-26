@@ -36,6 +36,5 @@ Volg de instructies in de CLI om projecten toe te voegen, uren te registreren en
 ## Technical Details
 - Bij opstart wordt een SQLite-database (`project_time_tracker.db`) met tabellen (`projects`, `worksessions`) aangemaakt in de projectmap (indien deze nog niet bestaat).
 - Alle data wordt lokaal opgeslagen in de SQLite-database.
-- Bij opstart worden alle actieve projecten in het geheugen geladen uit de database.
 - Na het selecteren van een project wordt de actieve werksessie (als die bestaat) in het geheugen opgeslagen totdat deze wordt gestopt.
 - Gegenereerde CSV-rapporten worden opgeslagen in de map `export/` binnen de projectmap.

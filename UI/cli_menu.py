@@ -27,9 +27,7 @@ class MainMenu:
                     input("Druk op Enter om terug te keren naar het hoofdmenu...")
                     break
             case 2: # Voeg nieuw project toe
-                new_project_name = input("Geef de naam van het nieuwe project op: ")
-                new_project_description = input("Geef een beschrijving van het nieuwe project op: ")
-                data.save_project_to_db()
+                create_new_project()
             case 3: # Open project
                 print("Project openen...")
             case 4: # Toon actieve sessie
@@ -98,6 +96,24 @@ def create_new_project() -> Project:
     print("Nieuw project aangemaakt.")
     return new_project
 
+def open_existing_project() -> Project | None:
+    active_project_list = get_all_active_projects()
+    print("=== Actieve Projecten ===")
+    for project in active_project_list:
+        print(project)
+    print("=========================")
+    project_id_input = input("Voer het ID van het project in dat je wilt openen: ")
+    try:
+        project_id = int(project_id_input)
+        project = data.get_project_by_id(project_id)
+        if project:
+            return project
+        else:
+            print("Project niet gevonden.")
+            return None
+    except ValueError:
+        print("Ongeldig ID, probeer het opnieuw.")
+        return None
 def create_new_worksession() -> Worksession:
     description = input("Voer een beschrijving voor de nieuwe werksessie in: ")
     new_session = Worksession(start_time=datetime.now(), description=description)
