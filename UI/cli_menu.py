@@ -27,10 +27,15 @@ class MainMenu:
                     input("Druk op Enter om terug te keren naar het hoofdmenu...")
                     break
             case 2: # Voeg nieuw project toe
-                create_new_project()
+               new_project = create_new_project()
+               while True:
+
+
             case 3: # Open project
+                # TODO: implement open_project_by_id function
                 print("Project openen...")
             case 4: # Toon actieve sessie
+                # TODO: implement show_active_worksession function
                 print("Toon actieve sessie...")
             case 5: # Afsluiten
                 print("Goodbye!")
@@ -52,16 +57,22 @@ class ProjectMenu:
     def handle_user_input(self, choice: int) -> None:
         match choice:
             case 1: # Start nieuwe sessie
+                # TODO: implement start_new_worksession function
                 print("Nieuwe sessie starten...")
             case 2: # Stop actieve sessie
+                # TODO: implement stop_active_worksession function
                 print("Actieve sessie stoppen...")
             case 3: # Bekijk alle sessies
+                # TODO: implement view_all_sessions function
                 print("Alle sessies bekijken...")
             case 4: # Exporteer sessies naar CSV
+                # TODO: implement export_sessions_to_csv function
                 print("Sessies exporteren naar CSV...")
             case 5: # Markeer project als afgewerkt
+                # TODO: implement mark_project_as_completed function
                 print("Project markeren als afgewerkt...")
             case 6: # Terug naar hoofdmenu
+                # TODO: implement return_to_main_menu function
                 print("Terug naar hoofdmenu...")
             case _:
                 print("Ongeldige keuze, probeer het opnieuw.")
@@ -96,24 +107,8 @@ def create_new_project() -> Project:
     print("Nieuw project aangemaakt.")
     return new_project
 
-def open_existing_project() -> Project | None:
-    active_project_list = get_all_active_projects()
-    print("=== Actieve Projecten ===")
-    for project in active_project_list:
-        print(project)
-    print("=========================")
-    project_id_input = input("Voer het ID van het project in dat je wilt openen: ")
-    try:
-        project_id = int(project_id_input)
-        project = data.get_project_by_id(project_id)
-        if project:
-            return project
-        else:
-            print("Project niet gevonden.")
-            return None
-    except ValueError:
-        print("Ongeldig ID, probeer het opnieuw.")
-        return None
+def open_project_by_id(int:id) -> Project | None:
+
 def create_new_worksession() -> Worksession:
     description = input("Voer een beschrijving voor de nieuwe werksessie in: ")
     new_session = Worksession(start_time=datetime.now(), description=description)

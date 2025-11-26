@@ -46,43 +46,27 @@ def load_all_projects_from_db() -> list[Project]:
     connection.close()
     return projects
 
-def get_project_by_id(project_id: int) -> Project | None:
+def get_project_from_db(project:Project, att) -> Project | None:
     """
-    Loads a single project by its ID from the database, including its worksessions.
+    Loads a single project by id or name.
+    Includes its work sessions.
     Returns the Project object or None if not found.
     """
     connection = sqlite3.connect(db_path)
     cursor = connection.cursor()
-    cursor.execute('SELECT id, name, description, is_active FROM projects WHERE id = ?', (project_id,))
-    row = cursor.fetchone()
-    if row:
-        # Load worksessions for the project
-        worksessions = load_sessions_for_project_from_db(project_id, connection)
-        project = Project(id=row[0], name=row[1], description=row[2], is_active=bool(row[3]), work_sessions=worksessions)
-        connection.close()
-        return project
-    connection.close()
-    return None
-
-def save_project_to_db(project: Project) -> None:
-    """
-    Saves a project and its work sessions to the database.
-    """
-    connection = sqlite3.connect(db_path)
-    cursor = connection.cursor()
-    if project.id is None:
-        cursor.execute(
-            'INSERT INTO projects (name, description, is_active) VALUES (?, ?, ?)',
-            (project.name, project.description, int(project.is_active))
-        )
-        project.id = cursor.lastrowid
+    if att == "id":
+        cursor.execute('SELECT id, name, description, is_active FROM projects WHERE id = ?', (project.__getattribute__("id"),))
+        project = cursor.fetchone()
+        load_sessions_for_project_from_db(project.__getattribute__("id"), connection)
+    elif att == "name":
+        cursor.execute('SELECT id, name, description, is_active FROM projects WHERE name = ?', (project.__getattribute__("name"),))
+        project = cursor.fetchone()
+        load_sessions_for_project_from_db(project.__getattribute__("name"), connection)
     else:
-        cursor.execute(
-            'UPDATE projects SET name = ?, description = ?, is_active = ? WHERE id = ?',
-            (project.name, project.description, int(project.is_active), project.id)
-        )
-    connection.commit()
+        project = None
+
     connection.close()
+    return project
 
 def load_sessions_for_project_from_db(project_id: int, existing_connection=None) -> list[Worksession]:
     """
@@ -114,7 +98,27 @@ def load_sessions_for_project_from_db(project_id: int, existing_connection=None)
         connection.close()
     return sessions
 
-def save_worksession_to_db(project_id: int, session: Worksession) -> None:
+def save_project_to_db(project:Project) -> None:
+    """
+    Saves a project and its work sessions to the database.
+    """
+    connection = sqlite3.connect(db_path)
+    cursor = connection.cursor()
+    if project.id is None:
+        cursor.execute(
+            'INSERT INTO projects (name, description, is_active) VALUES (?, ?, ?)',
+            (project.name, project.description, int(project.is_active))
+        )
+        project.id = cursor.lastrowid
+    else:
+        cursor.execute(
+            'UPDATE projects SET name = ?, description = ?, is_active = ? WHERE id = ?',
+            (project.name, project.description, int(project.is_active), project.id)
+        )
+    connection.commit()
+    connection.close()
+
+def save_worksession_to_db(project:Project, session:Worksession) -> None:
     """
     Saves a single work session to the database.
     If the session has no ID, it's inserted; otherwise, it's updated.
