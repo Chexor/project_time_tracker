@@ -1,4 +1,4 @@
-# UI/cli_menu.py
+# UI/cli_handler.py
 import sys
 from datetime import datetime
 import services.data_handler as data
@@ -10,29 +10,53 @@ class MainMenu:
     options = {
     1: "Toon alle lopende projecten",
     2: "Voeg nieuw project toe",
-    3: "Open project",
+    3: "Open actief project",
     4: "Toon actieve sessie",
     5: "Afsluiten"
     }
 
+    def print_list_of_active_projects(self):
+        active_project_list = get_all_active_projects()
+            print("=== Actieve Projecten ===")
+            for project in active_project_list:
+                print(f"ID: {project.id} | Naam: {project.name} | Beschrijving: {project.description}")
+            if not active_project_list:
+                print("** Er zijn geen actieve projecten gevonden.**")
+
     def handle_user_input(self, choice: int) -> None:
         match choice:
             case 1: # Toon alle lopende projecten
-                active_project_list = get_all_active_projects()
                 while True:
-                    print("=== Actieve Projecten ===")
-                    for project in active_project_list:
-                        print(project)
-                    print("=========================")
-                    input("Druk op Enter om terug te keren naar het hoofdmenu...")
+                    self.print_list_of_active_projects()
+                    print("Druk op Enter om terug te keren naar het hoofdmenu.")
+                    input()
                     break
+
             case 2: # Voeg nieuw project toe
                new_project = create_new_project()
                while True:
+                     print(f"Nieuw project aangemaakt: {new_project}")
+                     open_project_in_menu(new_project)
+                     break
 
+            case 3: # Open actief project
+                self.print_list_of_active_projects()
+                project_id = input("Voer het ID van het project in dat je wilt openen: ")
+                try:
+                    project_id_int = int(project_id)
+                    while True:
+                        project_to_open = Project(id=project_id_int, name="", description="")
+                        loaded_project = data.get_project_from_db(project_to_open, "id")
+                        if loaded_project:
+                            open_project_in_menu(loaded_project)
+                            break
+                        else:
+                            print("Project niet gevonden. Probeer het opnieuw.")
+                            return
+                except ValueError:
+                    print("Ongeldig project ID. Probeer het opnieuw.")
+                    return
 
-            case 3: # Open project
-                # TODO: implement open_project_by_id function
                 print("Project openen...")
             case 4: # Toon actieve sessie
                 # TODO: implement show_active_worksession function
@@ -42,6 +66,8 @@ class MainMenu:
                 exit_program()
             case _:
                 print("Ongeldige keuze, probeer het opnieuw.")
+
+
 
 class ProjectMenu:
     header = "=== Project Menu ==="
@@ -99,6 +125,13 @@ def get_user_choice(menu) -> int:
         except ValueError:
             print(f"Voer een geldig nummer in (1-{num_of_choices}).")
 
+def open_project_in_menu(project:Project) -> None:
+    project_menu = ProjectMenu()
+    while True:
+        show_menu(project_menu)
+        choice = get_user_choice(project_menu)
+        project_menu.handle_user_input(choice)
+
 def create_new_project() -> Project:
     name = input("Voer de naam van het nieuwe project in: ")
     description = input("Voer een beschrijving voor het nieuwe project in: ")
@@ -106,8 +139,6 @@ def create_new_project() -> Project:
     data.save_project_to_db(new_project)
     print("Nieuw project aangemaakt.")
     return new_project
-
-def open_project_by_id(int:id) -> Project | None:
 
 def create_new_worksession() -> Worksession:
     description = input("Voer een beschrijving voor de nieuwe werksessie in: ")

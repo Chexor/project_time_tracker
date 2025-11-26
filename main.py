@@ -1,9 +1,9 @@
 # main.py
-from UI.cli_menu import MainMenu
+from UI.cli_handler import MainMenu
 from models.project import Project
 from models.worksession import Worksession
 from db.database import Database
-import UI.cli_menu as cli
+import UI.cli_handler as cli
 import os
 
 def main():

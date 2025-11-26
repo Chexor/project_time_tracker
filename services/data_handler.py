@@ -55,11 +55,11 @@ def get_project_from_db(project:Project, att) -> Project | None:
     connection = sqlite3.connect(db_path)
     cursor = connection.cursor()
     if att == "id":
-        cursor.execute('SELECT id, name, description, is_active FROM projects WHERE id = ?', (project.__getattribute__("id"),))
+        cursor.execute('SELECT id, name, description, is_active FROM projects WHERE id = ?', (project.id,))
         project = cursor.fetchone()
         load_sessions_for_project_from_db(project.__getattribute__("id"), connection)
     elif att == "name":
-        cursor.execute('SELECT id, name, description, is_active FROM projects WHERE name = ?', (project.__getattribute__("name"),))
+        cursor.execute('SELECT id, name, description, is_active FROM projects WHERE name = ?', (project.name,))
         project = cursor.fetchone()
         load_sessions_for_project_from_db(project.__getattribute__("name"), connection)
     else:
@@ -128,7 +128,7 @@ def save_worksession_to_db(project:Project, session:Worksession) -> None:
     if session.id is None:
         cursor.execute(
             'INSERT INTO worksessions (project_id, start_time, end_time, description) VALUES (?, ?, ?, ?)',
-            (project_id, session.start_time.isoformat(),
+            (session.project_id, session.start_time.isoformat(),
              session.end_time.isoformat() if session.end_time else None,
              session.description)
         )
