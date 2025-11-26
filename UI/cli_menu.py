@@ -1,17 +1,48 @@
 # UI/cli_menu.py
 import sys
-import os
+from datetime import datetime
+import services.data_handler as data
 from models.project import Project
+from models.worksession import Worksession
 
-main_menu_options = {
+class MainMenu:
+    header = "=== Project Time Tracker ==="
+    options = {
     1: "Toon alle lopende projecten",
     2: "Voeg nieuw project toe",
     3: "Open project",
     4: "Toon actieve sessie",
-    6: "Afsluiten"
+    5: "Afsluiten"
     }
 
-project_menu_options = {
+    def handle_user_input(self, choice: int) -> None:
+        match choice:
+            case 1: # Toon alle lopende projecten
+                active_project_list = get_all_active_projects()
+                while True:
+                    print("=== Actieve Projecten ===")
+                    for project in active_project_list:
+                        print(project)
+                    print("=========================")
+                    input("Druk op Enter om terug te keren naar het hoofdmenu...")
+                    break
+            case 2: # Voeg nieuw project toe
+                new_project_name = input("Geef de naam van het nieuwe project op: ")
+                new_project_description = input("Geef een beschrijving van het nieuwe project op: ")
+                data.save_project_to_db()
+            case 3: # Open project
+                print("Project openen...")
+            case 4: # Toon actieve sessie
+                print("Toon actieve sessie...")
+            case 5: # Afsluiten
+                print("Goodbye!")
+                exit_program()
+            case _:
+                print("Ongeldige keuze, probeer het opnieuw.")
+
+class ProjectMenu:
+    header = "=== Project Menu ==="
+    options = {
     1: "Start nieuwe sessie",
     2: "Stop actieve sessie",
     3: "Bekijk alle sessies",
@@ -20,64 +51,65 @@ project_menu_options = {
     6: "Terug naar hoofdmenu"
     }
 
-def show_main_menu():
-    print("=== Project Time Tracker ===")
-    for key, value in main_menu_options.items():
-        print(f"{key}. {value}")
+    def handle_user_input(self, choice: int) -> None:
+        match choice:
+            case 1: # Start nieuwe sessie
+                print("Nieuwe sessie starten...")
+            case 2: # Stop actieve sessie
+                print("Actieve sessie stoppen...")
+            case 3: # Bekijk alle sessies
+                print("Alle sessies bekijken...")
+            case 4: # Exporteer sessies naar CSV
+                print("Sessies exporteren naar CSV...")
+            case 5: # Markeer project als afgewerkt
+                print("Project markeren als afgewerkt...")
+            case 6: # Terug naar hoofdmenu
+                print("Terug naar hoofdmenu...")
+            case _:
+                print("Ongeldige keuze, probeer het opnieuw.")
 
-def show_project_menu():
-    print("=== Project Menu ===")
-    for key, value in project_menu_options.items():
-        print(f"{key}. {value}")
 
-def display_project_menu():
-    projectlist = {}
-    print("=== Project Menu ===")
-    for project in Project.get_all_projects():
-        projectlist[project.id] = project
-        print(f"{project.id}. {project.name} - Active: {project.is_active}")
-    print("0. Terug naar hoofdmenu")
+def show_menu(menu) -> None:
+        print(menu.header)
+        for key, value in menu.options.items():
+            print(f"{key}. {value}")
 
-def get_user_choice() -> int:
-        while True:
-            choice = input("Maak een keuze (1-6): ")
-            try:
-                choice_int = int(choice)
-                if 1 <= choice_int <= 6:
-                    return choice_int
-                else:
-                    print("Ongeldige keuze, probeer het opnieuw.")
-            except ValueError:
-                print("Voer een geldig nummer in (1-6).")
+def get_all_active_projects() -> list[Project]:
+    return data.load_active_projects_from_db()
 
-def get_project_name_from_user() -> str:
-    name = input("Voer de naam van het project in: ")
-    return name
+def get_user_choice(menu) -> int:
+    num_of_choices = len(menu.options)
+    while True:
+        choice = input(f"Maak een keuze (1-{num_of_choices}): ")
+        try:
+            choice_int = int(choice)
+            if 1 <= choice_int <= num_of_choices:
+                return choice_int
+            else:
+                print("Ongeldige keuze, probeer het opnieuw.")
+        except ValueError:
+            print(f"Voer een geldig nummer in (1-{num_of_choices}).")
 
-def get_session_description_from_user() -> str:
-    description = input("Voer een beschrijving voor de werktijdsessie in: ")
-    return description
+def create_new_project() -> Project:
+    name = input("Voer de naam van het nieuwe project in: ")
+    description = input("Voer een beschrijving voor het nieuwe project in: ")
+    new_project = Project(name=name, description=description, work_sessions=[])
+    data.save_project_to_db(new_project)
+    print("Nieuw project aangemaakt.")
+    return new_project
+
+def create_new_worksession() -> Worksession:
+    description = input("Voer een beschrijving voor de nieuwe werksessie in: ")
+    new_session = Worksession(start_time=datetime.now(), description=description)
+    data.save_project_to_db(new_session)
+    return new_session
 
 def exit_program() -> None:
     sys.exit(0)
 
-def handle_user_input_main(choice: int):
-    match choice:
-        case 1: # Toon alle lopende projecten
-            while True:
-                print("=== Active Projects ===")
-            # Hier zou je de logica toevoegen om actieve projecten weer te geven
-        case 2: # Voeg nieuw project toe
-            name = get_project_name()
-            print(f"Nieuw project toegevoegd: {name}")
-        case 3: # Open project
-            description = get_session_description()
-            print(f"Nieuwe werktijdsessie gestart met beschrijving: {description}")
-        case 4: # Toon actieve sessie
-            print("Beëindig een werktijdsessie geselecteerd.")
-        case 5: # Bekijk alle sessies
-            print("Bekijk alle werktijdsessies voor een project geselecteerd.")
-        case 6:
-            exit_program()
-        case _:
-            print("Ongeldige keuze, probeer het opnieuw.")
+def launch() -> None:
+    while True:
+        main_menu = MainMenu()
+        show_menu(main_menu)
+        choice = get_user_choice(main_menu)
+        main_menu.handle_user_input(choice)

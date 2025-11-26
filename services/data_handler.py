@@ -1,4 +1,4 @@
-# services/database_handler.py
+# services/data_handler.py
 import sqlite3
 
 from models.project import Project
