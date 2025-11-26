@@ -2,14 +2,17 @@
 import sys
 from models.project import Project
 
-def display_main_menu():
+def show_main_menu():
     print("=== Project Time Tracker ===")
-    print("1. Lijst alle projecten")
+    print("1. Toon alle lopende projecten")
     print("2. Voeg nieuw project toe")
     print("3. Start een nieuwe werksessie")
     print("4. Beëindig een werksessie")
     print("5. Bekijk alle werksessies voor een project")
     print("6. Sluit af")
+
+def display_project_menu():
+    projectlist = {}
 
 def get_user_choice() -> int:
         while True:
@@ -23,21 +26,18 @@ def get_user_choice() -> int:
             except ValueError:
                 print("Voer een geldig nummer in (1-6).")
 
-def get_project_name() -> str:
+def get_project_name_from_user() -> str:
     name = input("Voer de naam van het project in: ")
     return name
 
-def get_session_description() -> str:
+def get_session_description_from_user() -> str:
     description = input("Voer een beschrijving voor de werktijdsessie in: ")
     return description
 
 def exit_program() -> None:
     sys.exit(0)
 
-def main():
-    display_main_menu()
-    choice = get_user_choice()
-
+def handle_user_input(choice: int):
     match choice:
         case 1:
             print("Lijst alle projecten geselecteerd.")
@@ -55,6 +55,3 @@ def main():
             exit_program()
         case _:
             print("Ongeldige keuze, probeer het opnieuw.")
-
-
-

@@ -7,7 +7,8 @@ from datetime import datetime
 @dataclass
 class Project:
     name: str
-    worksessions: list[ws] = None
+    description: str = ""
+    work_sessions: list[ws] = None
     id: int | None = None
     is_active: bool = True
     
@@ -16,23 +17,34 @@ class Project:
         Returns active work session of project.
         If no running session is found, returns None.
         """
-        for session in self.worksessions:
-            return next((ws for ws in self.worksessions if ws.is_running()), None)
-    
+        for session in self.work_sessions:
+            return next((ws for session in self.work_sessions if ws.is_running()), None)
+        return None
+
     def show_all_sessions(self) -> list[ws]:
         """
         Returns list of all work sessions in project.
         """
-        return self.worksessions.copy() # Returns copy for safety reasons (encapsulation)
+        return self.work_sessions.copy() # Returns copy for safety reasons (encapsulation)
         
     def start_new_session(self, description):
         """
         Starts new work session in project.
         """
         if not self.get_active_session(): # Checks for active session
-            self.worksessions.append(ws(datetime.now(), description))
+            self.work_sessions.append(ws(datetime.now(), description))
         else:
             print("Er is al een lopende sessie op dit project.")
+
+    def end_active_session(self):
+        """
+        Ends active work session in project.
+        """
+        active_session = self.get_active_session()
+        if active_session:
+            active_session.end_time = datetime.now()
+        else:
+            print("Er is geen lopende sessie op dit project.")
 
     def __str__(self):
         return f"({self.id}) {self.name} - Active:{self.is_active}"
