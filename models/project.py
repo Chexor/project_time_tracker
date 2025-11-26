@@ -21,19 +21,19 @@ class Project:
     
     def show_all_sessions(self) -> list[ws]:
         """
-        Returns list of all worksessions in project.
+        Returns list of all work sessions in project.
         """
         return self.worksessions.copy() # Returns copy for safety reasons (encapsulation)
         
     def start_new_session(self, description):
         """
-        Starts new worksession in project.
+        Starts new work session in project.
         """
         if not self.get_active_session(): # Checks for active session
             self.worksessions.append(ws(datetime.now(), description))
         else:
             print("Er is al een lopende sessie op dit project.")
-        
+
     def __str__(self):
         return f"({self.id}) {self.name} - Active:{self.is_active}"
             
